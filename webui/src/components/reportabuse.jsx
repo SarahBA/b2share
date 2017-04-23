@@ -60,7 +60,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='full_record_link' >Full link to the record </label>
                         </div>
                         <div className="col-sm-8" >
-                            <input ref='full_record_link' className="form-control" name='full_record_link' type='text'
+                            <input  className="form-control" name='full_record_link' type='text'
                                 value={browser.getRecordURL(this.props.params.id)} readOnly="true" size='60' />
                         </div>
                     </div>
@@ -76,7 +76,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='abusecontent'>Abuse or Inappropriate content </label>
                         </div>
                         <div className=" col-sm-1" >
-                        <input ref={(ref) => this.abusecontent = ref} name='reason'  type='radio' value='abusecontent'  required />
+                        <input ref={(ref) => this.abusecontent = ref} name='reason' id='abusecontent' type='radio' value='abusecontent' className="radiobuttons" required />
                         </div>
                     </div>
                     <div className='row'>
@@ -84,7 +84,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='copyright'>Copyrighted material </label>
                         </div>
                         <div className=" col-sm-1" >
-                            <input ref={(ref) => this.copyright = ref} name='reason' type='radio' value='copyright' />
+                            <input ref={(ref) => this.copyright = ref} name='reason' id='copyright' type='radio' value='copyright' className="radiobuttons" />
                         </div>
                     </div>
 
@@ -93,7 +93,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='noresearch'>Not research data </label>
                         </div>
                         <div className=" col-sm-1" >
-                            <input ref={(ref) => this.noresearch = ref} name='reason' type='radio' value='noresearch'  />
+                            <input ref={(ref) => this.noresearch = ref} name='reason' id='noresearch' type='radio' value='noresearch' className="radiobuttons" />
                         </div>
                     </div>
 
@@ -102,7 +102,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='illegalcontent'>Illegal content </label>
                         </div>
                         <div className=" col-sm-1" >
-                            <input ref={(ref) => this.illegalcontent = ref} name='reason' type='radio' value='illegalcontent'  />
+                            <input ref={(ref) => this.illegalcontent = ref} name='reason' id='illegalcontent' type='radio' value='illegalcontent' className="radiobuttons" />
                         </div>
                     </div>
 
@@ -111,7 +111,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='message'>Why is the content inappropriate? </label>
                         </div>
                         <div className=" col-sm-8" >
-                            <textarea ref={(ref) => this.message = ref}  name='message' className="form-control" type='textarea' rows="4" cols="50"  required/>
+                            <textarea ref={(ref) => this.message = ref} name='message' id="message" className="form-control" type='textarea' rows="4" cols="50"  required/>
                         </div>
                     </div>
 
@@ -120,7 +120,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='name'>Your full name</label>
                         </div>
                         <div className=" col-sm-8" >
-                            <input ref={(ref) => this.name = ref} name='name' className="form-control" type='text'  required />
+                            <input ref={(ref) => this.name = ref} name='name' id="name" className="form-control" type='text'  required />
                         </div>
                     </div>
 
@@ -129,7 +129,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='affiliation'>Your affiliation</label>
                         </div>
                         <div className=" col-sm-8" >
-                            <input ref={(ref) => this.affiliation = ref}  name='affiliation' className="form-control" type='text' required />
+                            <input ref={(ref) => this.affiliation = ref}  name='affiliation' id="affiliation" className="form-control" type='text' required />
                         </div>
                     </div>
 
@@ -138,7 +138,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='email'>Your email</label>
                         </div>
                         <div className=" col-sm-8" >
-                            <input ref={(ref) => this.email = ref} name='email' className="form-control" type='email' required />
+                            <input ref={(ref) => this.email = ref} name='email' id="email" className="form-control" type='email' required />
                         </div>
                     </div>
 
@@ -147,7 +147,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='address'>Your address</label>
                         </div>
                         <div className=" col-sm-8" >
-                            <input ref={(ref) => this.address = ref} name='address' className="form-control" type='text'  required />
+                            <input ref={(ref) => this.address = ref} name='address' id="address" className="form-control" type='text'  required />
                         </div>
                     </div>
 
@@ -156,7 +156,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='city'>City</label>
                         </div>
                         <div className=" col-sm-8" >
-                            <input ref={(ref) => this.city = ref} name='city' className="form-control" type='text'  required />
+                            <input ref={(ref) => this.city = ref} name='city' id="city" className="form-control" type='text'  required />
                         </div>
                     </div>
 
@@ -165,7 +165,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='country'>Country</label>
                         </div>
                         <div className=" col-sm-8" >
-                        <select ref={(ref) => this.country = ref} name='country' className="form-control" defaultValue=""  required >
+                        <select ref={(ref) => this.country = ref} name='country' id="country" className="form-control" defaultValue=""  required >
                             <option value="">Choose country</option>
                             <option value="Afghanistan" >Afghanistan</option>
                             <option value="Albania" >Albania</option>
@@ -370,7 +370,7 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='zipcode'>Zip code</label>
                         </div>
                         <div className=" col-sm-8" >
-                            <input ref={(ref) => this.zipcode = ref} name='zipcode' className="form-control" type='text'  required />
+                            <input ref={(ref) => this.zipcode = ref} name='zipcode' id="zipcode" className="form-control" type='text'  required />
                         </div>
                     </div>
 
@@ -379,13 +379,13 @@ export const ReportAbuse = React.createClass({
                             <label forHtml='phone'>Your phone number</label>
                         </div>
                         <div className=" col-sm-8" >
-                            <input ref={(ref) => this.phone = ref} name="phone" type='text'  pattern="[0-9]*" className="form-control" title= "Numbers Only" required />
+                            <input ref={(ref) => this.phone = ref} name="phone" id="phone" type='text'  pattern="[0-9]*" className="form-control" title= "Numbers Only" required />
                         </div>
                     </div>
 
                     <div className='row' style={gap}>
                         <div className="col-sm-offset-2 col-sm-8">
-                            <button type="submit" className="btn btn-primary btn-default btn-block" >Send</button>
+                            <button type="submit" id="send" className="btn btn-primary btn-default btn-block" >Send</button>
                         </div>
                     </div>
                 </form>
