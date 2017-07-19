@@ -6,6 +6,7 @@ import { serverCache, Error } from '../data/server';
 import { pairs, humanSize } from '../data/misc';
 import { Wait, Err } from './waiting.jsx';
 import { ReplaceAnimate } from './animate.jsx';
+import { DateTimePicker } from 'react-widgets';
 
 const PT = React.PropTypes;
 
@@ -413,7 +414,6 @@ export const EditFiles = React.createClass({
     },
 });
 
-
 export const FileUploadHeader = React.createClass({
     mixins: [React.addons.PureRenderMixin],
     render() {
@@ -491,7 +491,6 @@ const FileUploadRow = React.createClass({
     },
 });
 
-
 export const FileRecordHeader = React.createClass({
     mixins: [React.addons.PureRenderMixin],
     render() {
@@ -518,7 +517,28 @@ export const FileRecordRow = React.createClass({
         return {
             open: false,
             remove: false,
+            showStatistics: false,
+            min: null,
+            max: null,
+            downloadsTot: 87,
         };
+    },
+
+
+    onChangeFrom(date){
+        const m = moment(date);
+        this.setState({min: m.toDate()});
+    },
+
+    onChangeTo(date){
+        const m = moment(date);
+        this.setState({max: m.toDate()})
+    },
+
+    getDownloadNum(e){
+        e.preventDefault();
+        const downloadsNum = 56;
+        this.setState({downloadsNum})
     },
 
     render() {
@@ -527,6 +547,7 @@ export const FileRecordRow = React.createClass({
 
         const allowDetails = file.checksum || file.ePIC_PID;
         const stateMark = allowDetails ? (this.state.open ? "down":"right") : "";
+        const statisticStateMark = this.state.showStatistics ? "down":"right";
 
         return (
             <div className="file">
@@ -547,7 +568,7 @@ export const FileRecordRow = React.createClass({
                     }
                 </div>
                 { allowDetails && this.state.open ?
-                    <div className="details">
+                    <div className="details" style={{overflow:'visible'}}>
                         { file.checksum ? <div className="row">
                             <div className="col-sm-12"><span style={{marginLeft:'2.5em'}}/>
                                 Checksum:
@@ -565,7 +586,57 @@ export const FileRecordRow = React.createClass({
                             <div className="col-sm-12" style={{paddingLeft:'2.5em'}}>
                                 { this.props.b2noteWidget }
                             </div> : false }
+
+                        <div className="statistics" style={{marginTop:'3em', marginBottom:'1em'}}>
+                            <div onClick={e => this.setState({showStatistics:!this.state.showStatistics})} >
+                                <div className="col-sm-12">
+                                    <span className={"glyphicon glyphicon-chevron-"+statisticStateMark} style={{marginLeft:'0.5em', fontSize:10}} />
+                                    <span className={"checksum glyphicon glyphicon-charts"} style={{marginLeft:'0.5em', fontSize:10}}  />
+                                    Total number of downloads: {this.state.downloadsTot ? this.state.downloadsTot : "0"}
+                                </div>
+
+                            </div>
+
+
+
+
+                            { this.state.showStatistics ? <div>
+                                <hr/>
+                                <div className="row" style={{marginTop:'3em', marginBottom:'1em;'}}>  
+                                    <div className="col-sm-4">
+                                        From:
+                                        <DateTimePicker format={"LL"}
+                                                    time={false} 
+                                                    defaultValue={new Date()}
+                                                    onChange={this.onChangeFrom}
+                                                    max={this.state.max ? this.state.max : new Date() }
+                                                />
+                                    </div>
+                                    <div className="col-sm-4">
+                                        To:
+                                        <DateTimePicker format={"LL"}
+                                                    time={false} 
+                                                    defaultValue={new Date()}
+                                                    onChange={this.onChangeTo}
+                                                    min={this.state.min ? this.state.min : new Date()}
+                                                    max={new Date()}
+                                                />
+                                    </div>
+                                    <div className="col-sm-4">
+                                        <form className="form-inline" onSubmit={this.getDownloadNum}>
+                                            <button className="btn btn-default btn-sm" type="submit" style={{marginTop:'1.5em', marginBottom:'1em'}}>
+                                                <i className="fa fa-bar-chart" aria-hidden="true"></i> Downloads Number
+                                            </button>
+                                        </form>
+                                    </div>
+                                    </div>
+                                    <div className="row">
+                                        <div className="col-sm-12">{this.state.downloadsNum ? "Number of downloads in this period is "+this.state.downloadsNum : null}</div>
+                                    </div>
+                            </div> : false }
+                        </div> 
                     </div> : false }
+
                 { this.props.remove && this.state.remove ?
                     <FileRemoveDialog file={file}
                                       remove={this.props.remove}
