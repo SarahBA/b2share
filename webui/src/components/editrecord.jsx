@@ -70,7 +70,9 @@ export const EditRecordRoute = React.createClass({
         if (record instanceof Error) {
             return <Err err={record}/>;
         }
-        this.props.dataRef.getIn(["user"]).getIn(["roles"]).get(0).getIn(["name"])=='com:e9b9792e79fb4b07b6b4b9c2bd06d095:admin') ? role = 'admin' : role = 'member';
+        this.props.dataRef.getIn(["user"]).getIn(["roles"]).get(0).getIn(["name"])=='com:e9b9792e79fb4b07b6b4b9c2bd06d095:admin' ? role = 'admin' : role = 'member';
+        console.log("EditRecordRoute >>> render >>> current user role = ", role)
+
         const [rootSchema, blockSchemas] = serverCache.getRecordSchemas(record);
         if (rootSchema instanceof Error) {
             return <Err err={rootSchema}/>;
@@ -148,6 +150,7 @@ const EditRecord = React.createClass({
     },
 
     setValue(schema, path, value) {
+        console.log("setValue >>>")
         let r = this.state.record;
         if (!r) {
             return null;
@@ -633,6 +636,7 @@ const EditRecord = React.createClass({
             const klass = this.state.waitingForServer ? 'disabled' :
                           this.isForPublication() ? 'btn-primary btn-danger' :
                           this.state.dirty ? 'btn-primary' : 'disabled';
+            // console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
             const text = this.state.waitingForServer ? "Updating record, please wait..." :
                           this.isForPublication() ? ( this.props.community.getIn(["publication_workflow"]) == 'review_and_publish' ? 'Submit for reviewe' : 'Save and Publish') :
                           this.state.dirty ? 'Save Draft' : 'The draft is up to date';
@@ -640,7 +644,7 @@ const EditRecord = React.createClass({
                 <div className="col-sm-offset-3 col-sm-9">
                     <label style={{fontSize:18, fontWeight:'normal'}}>
                         { this.props.community.getIn(["publication_workflow"]) == 'review_and_publish' ?
-                           <div> <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/> {" "}Submit draft to be reviewed by an admin </div>:
+                           <div> <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/> {" "}Submit draft for review by your community administrator </div>:
                            <div> <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/> {" "}Submit draft for publication </div>
                         }
                     </label>
@@ -649,7 +653,7 @@ const EditRecord = React.createClass({
                     <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button>
                 </div>
             );
-        }//????
+        }
     },
 
     render() {
@@ -659,6 +663,8 @@ const EditRecord = React.createClass({
             return <Wait/>;
         }
         const editTitle = "Editing " + (this.props.isDraft ? "draft" : "record") + (this.props.isVersion ?  " version": "");
+        // var ttt = this.props.community.get("publication_workflow")
+        // console.log("EditRecord >>> render >>> this.props.community = ", ttt ) // in miofte too LOOP ]:
          // this.isForReview()
         return (
             <div className="edit-record">
