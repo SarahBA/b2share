@@ -63,12 +63,14 @@ export const EditRecordRoute = React.createClass({
 
     render() {
         const record = this.getRecordOrDraft();
+        var role;
         if (!record) {
             return <Wait/>;
         }
         if (record instanceof Error) {
             return <Err err={record}/>;
         }
+        this.props.dataRef.getIn(["user"]).getIn(["roles"]).get(0).getIn(["name"])=='com:e9b9792e79fb4b07b6b4b9c2bd06d095:admin') ? role = 'admin' : role = 'member';
         const [rootSchema, blockSchemas] = serverCache.getRecordSchemas(record);
         if (rootSchema instanceof Error) {
             return <Err err={rootSchema}/>;
@@ -83,7 +85,8 @@ export const EditRecordRoute = React.createClass({
                             rootSchema={rootSchema} blockSchemas={blockSchemas}
                             refreshCache={this.refreshCache}
                             patchFn={this.patchRecordOrDraft}
-                            isDraft={this.isDraft} isVersion={true} />
+                            isDraft={this.isDraft} isVersion={true}
+                            role={role} />
             </ReplaceAnimate>
         );
     }
@@ -592,6 +595,16 @@ const EditRecord = React.createClass({
         this.props.patchFn(patch, afterPatch, onError);
     },
 
+    isForReview() {
+        // var user=serverCache.getUser()
+        // console.log("user = ", user)
+        // console.log("this.state.record.get('publication_state') = ", this.state.record.get('publication_state'))
+        // console.log("this.props.isDraft = ", this.props.isDraft )
+        // console.log("this.props.role = ", this.props.role)
+        console.log("return = ", this.state.record.get('publication_state') == 'submitted' && this.props.role == 'admin')
+        return this.state.record.get('publication_state') == 'submitted' && this.props.role == 'admin';
+    },
+
     isForPublication() {
         return this.state.record.get('publication_state') == 'submitted';
     },
@@ -616,23 +629,27 @@ const EditRecord = React.createClass({
     },
 
     renderSubmitDraftForm() {
-        const klass = this.state.waitingForServer ? 'disabled' :
-                      this.isForPublication() ? 'btn-primary btn-danger' :
-                      this.state.dirty ? 'btn-primary' : 'disabled';
-        const text = this.state.waitingForServer ? "Updating record, please wait..." :
-                      this.isForPublication() ? 'Save and Publish' :
-                      this.state.dirty ? 'Save Draft' : 'The draft is up to date';
-        return (
-            <div className="col-sm-offset-3 col-sm-9">
-                <label style={{fontSize:18, fontWeight:'normal'}}>
-                    <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/>
-                    {" "}Submit draft for publication
-                </label>
-                <p>When the draft is published it will be assigned a PID, making it publicly citable.
-                    But a published record's files can no longer be modified by its owner. </p>
-                <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button>
-            </div>
-        );
+        if(this.props.community){
+            const klass = this.state.waitingForServer ? 'disabled' :
+                          this.isForPublication() ? 'btn-primary btn-danger' :
+                          this.state.dirty ? 'btn-primary' : 'disabled';
+            const text = this.state.waitingForServer ? "Updating record, please wait..." :
+                          this.isForPublication() ? ( this.props.community.getIn(["publication_workflow"]) == 'review_and_publish' ? 'Submit for reviewe' : 'Save and Publish') :
+                          this.state.dirty ? 'Save Draft' : 'The draft is up to date';
+            return (
+                <div className="col-sm-offset-3 col-sm-9">
+                    <label style={{fontSize:18, fontWeight:'normal'}}>
+                        { this.props.community.getIn(["publication_workflow"]) == 'review_and_publish' ?
+                           <div> <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/> {" "}Submit draft to be reviewed by an admin </div>:
+                           <div> <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/> {" "}Submit draft for publication </div>
+                        }
+                    </label>
+                    <p>When the draft is published it will be assigned a PID, making it publicly citable.
+                        But a published record's files can no longer be modified by its owner. </p>
+                    <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button>
+                </div>
+            );
+        }//????
     },
 
     render() {
@@ -642,6 +659,7 @@ const EditRecord = React.createClass({
             return <Wait/>;
         }
         const editTitle = "Editing " + (this.props.isDraft ? "draft" : "record") + (this.props.isVersion ?  " version": "");
+         // this.isForReview()
         return (
             <div className="edit-record">
                 <Versions isDraft={this.props.isDraft}

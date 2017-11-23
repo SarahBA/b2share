@@ -134,6 +134,10 @@ export const UserProfile = React.createClass({
                         {roles && roles.count() && typeof(communitiesList) !== "undefined" ? this.listRoles(roles, communitiesList) : <p>You have no assigned roles</p>}
                     </div>
                     <div className="row">
+                        <h3>Submitted Records for Review </h3>
+                        <p><Link to={"/records?drafts=1&q=publication_state%3Asubmitted"}> List of submitted records waiting for your review </Link></p>
+                    </div>
+                    <div className="row">
                         <h3>Own records</h3>
                         <p><Link to={"/records?q=owners:"+user.get('id')}>
                             List of your published records

@@ -717,6 +717,7 @@ class ServerCache {
     }
 
     createRecord(initialMetadata, successFn) {
+        console.log("initialMetadata = ", initialMetadata)
         this.posters.records.post(initialMetadata, successFn);
     }
 
@@ -755,18 +756,26 @@ class ServerCache {
     }
 
     updateDraft(id, metadata, successFn) {
+        console.log("\n\n>>> updateDraft ");
+        console.log("id = ", id, "  , metadata = ", metadata);
         this.posters.draft.get(id).put(metadata, successFn);
     }
 
     patchDraft(id, patch, successFn, errorFn) {
+        console.log("\n\n>>> patchDraft ");
+        console.log("id = ", id, "  , patch = ", patch)
         this.posters.draft.get(id).patch(patch, successFn, errorFn);
     }
 
     updateRecord(id, metadata, successFn) {
+        console.log("\n\n>>> updateRecord ");
+        console.log("id = ", id, "  , metadata = ", metadata);
         this.posters.record.get(id).put(metadata, successFn);
     }
 
     patchRecord(id, patch, successFn, errorFn) {
+        console.log("\n\n>>> patchRecord ");
+        console.log("id = ", id, "  , patch = ", patch);
         this.posters.record.get(id).patch(patch, successFn, errorFn);
     }
 
