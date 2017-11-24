@@ -70,8 +70,9 @@ export const EditRecordRoute = React.createClass({
         if (record instanceof Error) {
             return <Err err={record}/>;
         }
-        this.props.dataRef.getIn(["user"]).getIn(["roles"]).get(0).getIn(["name"])=='com:e9b9792e79fb4b07b6b4b9c2bd06d095:admin' ? role = 'admin' : role = 'member';
-        console.log("EditRecordRoute >>> render >>> current user role = ", role)
+        // this.props.dataRef.getIn(["user"]).getIn(["roles"]).get(0).getIn(["name"])=='com:e9b9792e79fb4b07b6b4b9c2bd06d095:admin' ? role = 'admin' : role = 'member';
+        // console.log("EditRecordRoute >>> render >>> current user role = ", role)
+        role = "test"
 
         const [rootSchema, blockSchemas] = serverCache.getRecordSchemas(record);
         if (rootSchema instanceof Error) {
