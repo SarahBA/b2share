@@ -634,27 +634,55 @@ const EditRecord = React.createClass({
 
     renderSubmitDraftForm() {
         if(this.props.community){
-            const klass = this.state.waitingForServer ? 'disabled' :
-                          this.isForPublication() ? 'btn-primary btn-danger' :
-                          this.state.dirty ? 'btn-primary' : 'disabled';
-            // console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
-            const text = this.state.waitingForServer ? "Updating record, please wait..." :
-                          this.isForPublication() ? ( this.props.community.getIn(["publication_workflow"]) == 'review_and_publish' ? 'Submit for reviewe' : 'Save and Publish') :
-                          this.state.dirty ? 'Save Draft' : 'The draft is up to date';
-            return (
-                <div className="col-sm-offset-3 col-sm-9">
-                    <label style={{fontSize:18, fontWeight:'normal'}}>
-                        { this.props.community.getIn(["publication_workflow"]) == 'review_and_publish' ?
-                           <div> <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/> {" "}Submit draft for review by your community administrator </div>:
-                           <div> <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/> {" "}Submit draft for publication </div>
-                        }
-                    </label>
-                    <p>When the draft is published it will be assigned a PID, making it publicly citable.
-                        But a published record's files can no longer be modified by its owner. </p>
-                    <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button>
-                </div>
-            );
+            if(this.props.community.getIn(["publication_workflow"]) == 'review_and_publish'){
+                const klass = this.state.waitingForServer ? 'disabled' :
+                              this.isForPublication() ? 'btn-primary btn-danger' :
+                              this.state.dirty ? 'btn-primary' : 'disabled';
+                const text = this.state.waitingForServer ? "Updating record, please wait..." :
+                              this.isForPublication() ? 'Save and submit for review' :
+                              this.state.dirty ? 'Save Draft' : 'The draft is up to date';
+                console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
+                return (
+                    <div className="col-sm-offset-3 col-sm-9">
+                        <label style={{fontSize:18, fontWeight:'normal'}}>
+                            <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/>
+                            {" "}Submit draft for review by your community administrator
+                        </label>
+                        <p> ??? some description ??? </p>
+                        <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button>
+                    </div>
+                );
+            } else {
+                const klass = this.state.waitingForServer ? 'disabled' :
+                              this.isForPublication() ? 'btn-primary btn-danger' :
+                              this.state.dirty ? 'btn-primary' : 'disabled';
+                const text = this.state.waitingForServer ? "Updating record, please wait..." :
+                              this.isForPublication() ? 'Save and Publish' :
+                              this.state.dirty ? 'Save Draft' : 'The draft is up to date';
+                console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
+                return (
+                    <div className="col-sm-offset-3 col-sm-9">
+                        <label style={{fontSize:18, fontWeight:'normal'}}>
+                            <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/>
+                            {" "}Submit draft for publication
+                        </label>
+                        <p>When the draft is published it will be assigned a PID, making it publicly citable.
+                            But a published record's files can no longer be modified by its owner. </p>
+                        <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button>
+                    </div>
+                );
+            }
+
         }
+
+
+
+            // console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
+            // const text = this.state.waitingForServer ? "Updating record, please wait..." :
+            //               this.isForPublication() ? ( this.props.community.getIn(["publication_workflow"]) == 'review_and_publish' ? 'Submit for reviewe' : 'Save and Publish') :
+            //               this.state.dirty ? 'Save Draft' : 'The draft is up to date';
+
+
     },
 
     render() {
