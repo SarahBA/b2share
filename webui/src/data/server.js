@@ -717,7 +717,7 @@ class ServerCache {
     }
 
     createRecord(initialMetadata, successFn) {
-        console.log("initialMetadata = ", initialMetadata)
+        // console.log("initialMetadata = ", initialMetadata)
         this.posters.records.post(initialMetadata, successFn);
     }
 

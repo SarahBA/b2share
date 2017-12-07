@@ -73,7 +73,6 @@ export const EditRecordRoute = React.createClass({
         // this.props.dataRef.getIn(["user"]).getIn(["roles"]).get(0).getIn(["name"])=='com:e9b9792e79fb4b07b6b4b9c2bd06d095:admin' ? role = 'admin' : role = 'member';
         // console.log("EditRecordRoute >>> render >>> current user role = ", role)
         role = "test"
-        // console.log(">>>>>>>>>>>>>>>>> workflow = ", community.getIn(["publication_workflow"])) // Community hanooz Null hast! 
 
         const [rootSchema, blockSchemas] = serverCache.getRecordSchemas(record);
         if (rootSchema instanceof Error) {
@@ -106,8 +105,9 @@ const EditRecord = React.createClass({
             errors: {},
             dirty: false,
             waitingForServer: false,
+            readOnly: false,
         };
-    },
+    },    
 
     renderFileBlock() {
         const setState = (fileState, message) => {
@@ -276,7 +276,7 @@ const EditRecord = React.createClass({
         };
         return (
             <DateTimePicker format={"LL"} time={false} finalView={"year"}
-                        defaultValue={initial} onChange={onChange} />
+                        defaultValue={initial} onChange={onChange} disabled={this.state.readOnly} />
         );
     },
 
@@ -301,12 +301,12 @@ const EditRecord = React.createClass({
             const languages = serverCache.getLanguages();
             field = (languages instanceof Error) ? <Err err={languages}/> :
                 <SelectBig data={languages}
-                    onSelect={x=>this.setValue(schema, path, x)} value={this.getValue(path)} />;
+                    onSelect={x=>this.setValue(schema, path, x)} value={this.getValue(path)} readOnly={this.state.readOnly} />;
         } else if (path.length === 2 && path[0] === 'disciplines') {
             const disciplines = serverCache.getDisciplines();
             field = (disciplines instanceof Error) ? <Err err={disciplines}/> :
                 <SelectBig data={disciplines}
-                    onSelect={x=>this.setValue(schema, path, x)} value={this.getValue(path)} />;
+                    onSelect={x=>this.setValue(schema, path, x)} value={this.getValue(path)} readOnly={this.state.readOnly} />;
         } else if (schema.get('type') === 'array') {
             const itemSchema = schema.get('items');
             const raw_values = this.getValue(path);
@@ -479,6 +479,14 @@ const EditRecord = React.createClass({
                 this.setState({record});
             }
         }
+        // console.log("?????????? this.props.community = ", this.props.community)
+        // console.log("?????????? this.state.record. = ", this.state.record)
+        if(this.props.community && this.state.record){
+            if(this.props.community.getIn(["publication_workflow"])=='review_and_publish' && this.state.record.get('publication_state')=='submitted'){
+                // console.log("................................");
+                this.setState({readOnly:true});
+            }            
+        }
 
         function addEmptyMetadataBlocks(record, blockSchemas) {
             if (!blockSchemas || !blockSchemas.length) {
@@ -581,19 +589,11 @@ const EditRecord = React.createClass({
                 this.setState({dirty:false, waitingForServer: false});
                 notifications.clearAll();
             } else if(this.props.community.getIn(["publication_workflow"]) == 'review_and_publish'){
-                console.log("*************** else if") 
-                console.log("this.props.isDraft = ",this.props.isDraft)
-                console.log("this.isForPublication = ",this.isForPublication())
-                console.log("\n\n") 
-                // readonly
-                this.setState({dirty:false, waitingForServer: false});
+                this.setState({dirty:false, waitingForServer: false, readOnly: true});
                 notifications.warning(`Hey GoOoOooOozzzzzzOOoOooO `);
                 browser.gotoEditRecord(record.id);
+                // this.forceUpdate();
             } else {
-                console.log("*************** else:") 
-                console.log("this.props.isDraft = ",this.props.isDraft)
-                console.log("this.isForPublication = ",this.isForPublication())
-                console.log("\n\n") 
                 browser.gotoRecord(record.id);
             }
         }
@@ -720,9 +720,12 @@ const EditRecord = React.createClass({
         }
         const editTitle = "Editing " + (this.props.isDraft ? "draft" : "record") + (this.props.isVersion ?  " version": "");
         // var ttt = this.props.community.get("publication_workflow")
-        // console.log("EditRecord >>> render >>> this.props.community = ", ttt ) // in miofte too LOOP ]:
+        // console.log("EditRecord >>> render >>> this.props.community = ", ttt ) 
         // this.isForReview()
-        console.log("\n\n workflow = ", this.props.community.getIn(["publication_workflow"]), ", this.state.record: publication_state = ", this.state.record.get('publication_state') , "\n\n")
+        console.log("\n\n workflow = ", this.props.community.getIn(["publication_workflow"]), 
+                    ", this.state.record: publication_state = ", this.state.record.get('publication_state') ,
+                    ", this.state.readOnly = ", this.state.readOnly,
+                     "\n\n")
         return (
             <div className="edit-record">
                 <Versions isDraft={this.props.isDraft}
@@ -747,6 +750,7 @@ const EditRecord = React.createClass({
                         { this.props.isDraft ? this.renderFileBlock() : false }
                     </div>
                     <div className="col-xs-12">
+                    <fieldset disabled={this.state.readOnly}>
                         <form className="form-horizontal" onSubmit={this.updateRecord}>
                             { this.renderFieldBlock(null, rootSchema) }
 
@@ -754,6 +758,7 @@ const EditRecord = React.createClass({
                                 blockSchemas.map(([id, blockSchema]) =>
                                     this.renderFieldBlock(id, (blockSchema||Map()).get('json_schema'))) }
                         </form>
+                    </fieldset>
                     </div>
                 </div>
                 <div className="row">
