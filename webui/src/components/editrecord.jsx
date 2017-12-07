@@ -73,6 +73,7 @@ export const EditRecordRoute = React.createClass({
         // this.props.dataRef.getIn(["user"]).getIn(["roles"]).get(0).getIn(["name"])=='com:e9b9792e79fb4b07b6b4b9c2bd06d095:admin' ? role = 'admin' : role = 'member';
         // console.log("EditRecordRoute >>> render >>> current user role = ", role)
         role = "test"
+        // console.log(">>>>>>>>>>>>>>>>> workflow = ", community.getIn(["publication_workflow"])) // Community hanooz Null hast! 
 
         const [rootSchema, blockSchemas] = serverCache.getRecordSchemas(record);
         if (rootSchema instanceof Error) {
@@ -579,15 +580,30 @@ const EditRecord = React.createClass({
                 // versioning data
                 this.setState({dirty:false, waitingForServer: false});
                 notifications.clearAll();
+            } else if(this.props.community.getIn(["publication_workflow"]) == 'review_and_publish'){
+                console.log("*************** else if") 
+                console.log("this.props.isDraft = ",this.props.isDraft)
+                console.log("this.isForPublication = ",this.isForPublication())
+                console.log("\n\n") 
+                // readonly
+                this.setState({dirty:false, waitingForServer: false});
+                notifications.warning(`Hey GoOoOooOozzzzzzOOoOooO `);
+                browser.gotoEditRecord(record.id);
             } else {
+                console.log("*************** else:") 
+                console.log("this.props.isDraft = ",this.props.isDraft)
+                console.log("this.isForPublication = ",this.isForPublication())
+                console.log("\n\n") 
                 browser.gotoRecord(record.id);
             }
         }
         const onError = (xhr) => {
+            console.log(">>>>> onError > xhr = ", xhr)
             this.setState({waitingForServer: false});
             onAjaxError(xhr);
             try {
                 const errors = JSON.parse(xhr.responseText).errors;
+                console.log(">>>>> onError > errors = ", errors)
                 errors.map(err => {
                     notifications.warning(`Error in field '${err.field}': ${err.message}`);
                 });
@@ -599,16 +615,6 @@ const EditRecord = React.createClass({
         this.props.patchFn(patch, afterPatch, onError);
     },
 
-    isForReview() {
-        // var user=serverCache.getUser()
-        // console.log("user = ", user)
-        // console.log("this.state.record.get('publication_state') = ", this.state.record.get('publication_state'))
-        // console.log("this.props.isDraft = ", this.props.isDraft )
-        // console.log("this.props.role = ", this.props.role)
-        console.log("return = ", this.state.record.get('publication_state') == 'submitted' && this.props.role == 'admin')
-        return this.state.record.get('publication_state') == 'submitted' && this.props.role == 'admin';
-    },
-
     isForPublication() {
         return this.state.record.get('publication_state') == 'submitted';
     },
@@ -618,6 +624,27 @@ const EditRecord = React.createClass({
         const record = this.state.record.set('publication_state', state);
         this.setState({record});
     },
+
+    // isForReview() {
+    //     // var user=serverCache.getUser()
+    //     // console.log("user = ", user)
+    //     // console.log("this.state.record.get('publication_state') = ", this.state.record.get('publication_state'))
+    //     // console.log("this.props.isDraft = ", this.props.isDraft )
+    //     // console.log("this.props.role = ", this.props.role)
+
+    //     // console.log("return = ", this.state.record.get('publication_state') == 'submitted' && this.props.role == 'admin')
+    //     // return this.state.record.get('publication_state') == 'submitted' && this.props.role == 'admin';
+
+    //     console.log(">>> isForReview > this.state.record.get('publication_state')  = ", this.state.record.get('publication_state') )
+    //     return this.state.record.get('publication_state') == 'submitted';
+    // },
+
+    // setReviewState(e) {
+    //     console.log(">>> setReviewState > e = ", e.target)
+    //     const state = e.target.checked ? 'submitted' : 'draft';
+    //     const record = this.state.record.set('publication_state', state);
+    //     this.setState({record});
+    // },
 
     renderUpdateRecordForm() {
         const klass = this.state.waitingForServer ? 'disabled' :
@@ -641,7 +668,7 @@ const EditRecord = React.createClass({
                 const text = this.state.waitingForServer ? "Updating record, please wait..." :
                               this.isForPublication() ? 'Save and submit for review' :
                               this.state.dirty ? 'Save Draft' : 'The draft is up to date';
-                console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
+                // console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
                 return (
                     <div className="col-sm-offset-3 col-sm-9">
                         <label style={{fontSize:18, fontWeight:'normal'}}>
@@ -659,7 +686,7 @@ const EditRecord = React.createClass({
                 const text = this.state.waitingForServer ? "Updating record, please wait..." :
                               this.isForPublication() ? 'Save and Publish' :
                               this.state.dirty ? 'Save Draft' : 'The draft is up to date';
-                console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
+                // console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
                 return (
                     <div className="col-sm-offset-3 col-sm-9">
                         <label style={{fontSize:18, fontWeight:'normal'}}>
@@ -694,7 +721,8 @@ const EditRecord = React.createClass({
         const editTitle = "Editing " + (this.props.isDraft ? "draft" : "record") + (this.props.isVersion ?  " version": "");
         // var ttt = this.props.community.get("publication_workflow")
         // console.log("EditRecord >>> render >>> this.props.community = ", ttt ) // in miofte too LOOP ]:
-         // this.isForReview()
+        // this.isForReview()
+        console.log("\n\n workflow = ", this.props.community.getIn(["publication_workflow"]), ", this.state.record: publication_state = ", this.state.record.get('publication_state') , "\n\n")
         return (
             <div className="edit-record">
                 <Versions isDraft={this.props.isDraft}
