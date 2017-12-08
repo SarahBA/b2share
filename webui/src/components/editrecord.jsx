@@ -106,6 +106,7 @@ const EditRecord = React.createClass({
             dirty: false,
             waitingForServer: false,
             readOnly: false,
+            tmp: null,
         };
     },    
 
@@ -473,17 +474,15 @@ const EditRecord = React.createClass({
             }
             record = addEmptyMetadataBlocks(record, props.blockSchemas) || record;
             this.setState({record});
+            this.setState({tmp:record.get('publication_state')})
         } else if (this.state.record && props.blockSchemas) {
             const record = addEmptyMetadataBlocks(this.state.record, props.blockSchemas);
             if (record) {
                 this.setState({record});
             }
         }
-        // console.log("?????????? this.props.community = ", this.props.community)
-        // console.log("?????????? this.state.record. = ", this.state.record)
         if(this.props.community && this.state.record){
             if(this.props.community.getIn(["publication_workflow"])=='review_and_publish' && this.state.record.get('publication_state')=='submitted'){
-                // console.log("................................");
                 this.setState({readOnly:true});
             }            
         }
@@ -566,87 +565,127 @@ const EditRecord = React.createClass({
         return errors;
     },
 
-    updateRecord(event) {
+    componentDidUpdate(prevProps, prevState) {
+        // console.log("*********************************************", prevState.record.getIn(['publication_state'])  , "  *** va *** ", this.state.record.getIn(['publication_state']))
+        // console.log("prevProps = ", prevProps)
+        // console.log("prevState = ", prevState)
+        // console.loG("^^^^^^^^^^^^^^^")
+        if (prevState.record.getIn(['publication_state']) !== this.state.record.getIn(['publication_state']) ){// && this.state.record.getIn(['publication_state'])=='submitted' ){ //shayad dovomin shart lazem nabashe???!!
+            const original = this.props.record.get('metadata').toJS();
+            const updated = this.state.record.toJS();
+            const patch = compare(original, updated);
+            if (!patch || !patch.length) {
+                this.setState({dirty:false});
+                return;
+            }
+            // console.log("componentDidUpdate > patch = ", patch)
+            this.updateRecord(patch);
+        }
+    },
+
+    updateSates(event) {
         event.preventDefault();
+        // console.log("... updateSates .... , this.state.tmp = ", this.state.tmp)
         const errors = this.findValidationErrors();
         if (this.state.fileState !== 'done' || pairs(errors).length > 0) {
             this.setState({errors});
             return;
         }
-        const original = this.props.record.get('metadata').toJS();
-        const updated = this.state.record.toJS();
-        const patch = compare(original, updated);
-        if (!patch || !patch.length) {
-            this.setState({dirty:false});
-            return;
-        }
-        const afterPatch = (record) => {
-            if (this.props.isDraft && !this.isForPublication()) {
-                this.props.refreshCache();
-                // TODO(edima): when a draft is publised, clean the state of
-                // records in versioned chain, to trigger a refetch of
-                // versioning data
-                this.setState({dirty:false, waitingForServer: false});
-                notifications.clearAll();
-            } else if(this.props.community.getIn(["publication_workflow"]) == 'review_and_publish'){
-                this.setState({dirty:false, waitingForServer: false, readOnly: true});
-                notifications.warning(`Hey GoOoOooOozzzzzzOOoOooO `);
-                browser.gotoEditRecord(record.id);
-                // this.forceUpdate();
-            } else {
-                browser.gotoRecord(record.id);
-            }
-        }
-        const onError = (xhr) => {
-            console.log(">>>>> onError > xhr = ", xhr)
-            this.setState({waitingForServer: false});
-            onAjaxError(xhr);
-            try {
-                const errors = JSON.parse(xhr.responseText).errors;
-                console.log(">>>>> onError > errors = ", errors)
-                errors.map(err => {
-                    notifications.warning(`Error in field '${err.field}': ${err.message}`);
-                });
-            } catch (_) {
-            }
-        }
 
-        this.setState({waitingForServer: true});
-        this.props.patchFn(patch, afterPatch, onError);
+        if(this.state.tmp == 'draft'){
+            const original = this.props.record.get('metadata').toJS();
+            const updated = this.state.record.toJS();
+            const patch = compare(original, updated);
+            if (!patch || !patch.length) {
+                this.setState({dirty:false});
+                return;
+            }
+            // console.log("updateSates > patch = ", patch)
+            const afterPatch = (record) => {
+                if (this.props.isDraft && !this.isForPublication()) { // shayad in if ro dige nakhaym!!???
+                    // console.log("................ first ")// , this.isForPublication() = ", this.isForPublication())
+                    this.props.refreshCache();
+                    // TODO(edima): when a draft is publised, clean the state of
+                    // records in versioned chain, to trigger a refetch of
+                    // versioning data
+                    this.setState({dirty:false, waitingForServer: false});
+                    notifications.clearAll();
+                }
+            }
+            const onError = (xhr) => {
+                // console.log(">>>>> onError > xhr = ", xhr)
+                this.setState({waitingForServer: false});
+                onAjaxError(xhr);
+                try {
+                    const errors = JSON.parse(xhr.responseText).errors;
+                    // console.log(">>>>> onError > errors = ", errors)
+                    errors.map(err => {
+                        notifications.warning(`Error in field '${err.field}': ${err.message}`);
+                    });
+                } catch (_) {
+                }
+            }
+            this.setState({waitingForServer: true});
+            this.props.patchFn(patch, afterPatch, onError);
+        } else {
+            const record = this.state.record.set('publication_state', this.state.tmp);
+            this.setState({record});            
+        }
+    },
+
+    updateRecord(patch) {
+        // console.log(".... updateRecord ....") 
+            const afterPatch = (record) => {
+                if(this.props.community.getIn(["publication_workflow"]) == 'review_and_publish'){
+                    this.setState({dirty:false, waitingForServer: false, readOnly: true});
+                    // console.log("............... second")//, this.state.tmp = ", this.state.tmp)
+                    notifications.warning(`This record is submitted and waiting for review by your community administrator`);
+                    browser.gotoEditRecord(record.id);
+                } else {
+                    // console.log("............. third, recordID = ", record.id)
+                    browser.gotoRecord(record.id);
+                }
+            }
+            const onError = (xhr) => {
+                // console.log(">>>>> onError > xhr = ", xhr)
+                this.setState({waitingForServer: false});
+                onAjaxError(xhr);
+                try {
+                    const errors = JSON.parse(xhr.responseText).errors;
+                    // console.log(">>>>> onError > errors = ", errors)
+                    errors.map(err => {
+                        notifications.warning(`Error in field '${err.field}': ${err.message}`);
+                    });
+                } catch (_) {
+                }
+            }
+            this.setState({waitingForServer: true});
+            this.props.patchFn(patch, afterPatch, onError);
+    },
+
+    editSubmittedRecord(){
+        console.log("00000000000000 editSubmittedRecord 0000000000")
     },
 
     isForPublication() {
-        return this.state.record.get('publication_state') == 'submitted';
+        // return this.state.record.get('publication_state') == 'submitted';
+        // console.log("isForPublication > this.state.tmp == 'submitted' is ", this.state.tmp == 'submitted')
+        return this.state.tmp == 'submitted';
+        // return this.state.tmp == 'draft';
     },
 
     setPublishedState(e) {
+        // console.log("setPublishedState >>>> e.target.checked = ", e.target.checked)
         const state = e.target.checked ? 'submitted' : 'draft';
-        const record = this.state.record.set('publication_state', state);
-        this.setState({record});
+        // const state = e.target.checked ? 'draft' : 'submitted';
+        // const record = this.state.record.set('publication_state', state);
+        // this.setState({record});
+        // console.log("setPublishedState >>>> state = ", state)
+        this.setState({tmp:state})
+        // console.log("setPublishedState >>>> this.state.tmp = ", this.state.tmp)
     },
 
-    // isForReview() {
-    //     // var user=serverCache.getUser()
-    //     // console.log("user = ", user)
-    //     // console.log("this.state.record.get('publication_state') = ", this.state.record.get('publication_state'))
-    //     // console.log("this.props.isDraft = ", this.props.isDraft )
-    //     // console.log("this.props.role = ", this.props.role)
-
-    //     // console.log("return = ", this.state.record.get('publication_state') == 'submitted' && this.props.role == 'admin')
-    //     // return this.state.record.get('publication_state') == 'submitted' && this.props.role == 'admin';
-
-    //     console.log(">>> isForReview > this.state.record.get('publication_state')  = ", this.state.record.get('publication_state') )
-    //     return this.state.record.get('publication_state') == 'submitted';
-    // },
-
-    // setReviewState(e) {
-    //     console.log(">>> setReviewState > e = ", e.target)
-    //     const state = e.target.checked ? 'submitted' : 'draft';
-    //     const record = this.state.record.set('publication_state', state);
-    //     this.setState({record});
-    // },
-
-    renderUpdateRecordForm() {
+    renderUpdateRecordForm() {//?????????????/ onClick?????????/
         const klass = this.state.waitingForServer ? 'disabled' :
                       this.state.dirty ? 'btn-primary' : 'disabled';
         const text = this.state.waitingForServer ? "Updating record, please wait...":
@@ -654,7 +693,7 @@ const EditRecord = React.createClass({
         return (
             <div className="col-sm-offset-3 col-sm-9">
                 <p>This record is already published. Any changes you make will be directly visible to other people.</p>
-                <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button>
+                <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button> 
             </div>
         );
     },
@@ -662,23 +701,33 @@ const EditRecord = React.createClass({
     renderSubmitDraftForm() {
         if(this.props.community){
             if(this.props.community.getIn(["publication_workflow"]) == 'review_and_publish'){
-                const klass = this.state.waitingForServer ? 'disabled' :
-                              this.isForPublication() ? 'btn-primary btn-danger' :
-                              this.state.dirty ? 'btn-primary' : 'disabled';
-                const text = this.state.waitingForServer ? "Updating record, please wait..." :
-                              this.isForPublication() ? 'Save and submit for review' :
-                              this.state.dirty ? 'Save Draft' : 'The draft is up to date';
-                // console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
-                return (
-                    <div className="col-sm-offset-3 col-sm-9">
-                        <label style={{fontSize:18, fontWeight:'normal'}}>
-                            <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/>
-                            {" "}Submit draft for review by your community administrator
-                        </label>
-                        <p> ??? some description ??? </p>
-                        <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button>
-                    </div>
-                );
+                if(this.state.record == 'submit' && this.state.readOnly){ // shayad faghat readonly kafi bood?!!
+                    return (
+                        <div className="col-sm-offset-3 col-sm-9">
+                            <p> ??? some description ??? </p>
+                            <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.editSubmittedRecord}>Edit</button>
+                        </div>
+                    );                    
+                } else {
+                    const klass = this.state.waitingForServer ? 'disabled' :
+                                  this.isForPublication() ? 'btn-primary btn-danger' :
+                                  this.state.dirty ? 'btn-primary' : 'disabled';
+                    const text = this.state.waitingForServer ? "Updating record, please wait..." :
+                                  this.isForPublication() ? 'Save and submit for review' :
+                                  this.state.dirty ? 'Save Draft' : 'The draft is up to date';
+                    // console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
+                    return (
+                        <div className="col-sm-offset-3 col-sm-9">
+                            <label style={{fontSize:18, fontWeight:'normal'}}>
+                                <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/>
+                                {" "}Submit draft for review by your community administrator
+                            </label>
+                            <p> ??? some description ??? </p>
+                            <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateSates}>{text}</button>
+                        </div>
+                    );
+                }
+
             } else {
                 const klass = this.state.waitingForServer ? 'disabled' :
                               this.isForPublication() ? 'btn-primary btn-danger' :
@@ -695,21 +744,12 @@ const EditRecord = React.createClass({
                         </label>
                         <p>When the draft is published it will be assigned a PID, making it publicly citable.
                             But a published record's files can no longer be modified by its owner. </p>
-                        <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button>
+                        <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateSates}>{text}</button>
                     </div>
                 );
             }
 
         }
-
-
-
-            // console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
-            // const text = this.state.waitingForServer ? "Updating record, please wait..." :
-            //               this.isForPublication() ? ( this.props.community.getIn(["publication_workflow"]) == 'review_and_publish' ? 'Submit for reviewe' : 'Save and Publish') :
-            //               this.state.dirty ? 'Save Draft' : 'The draft is up to date';
-
-
     },
 
     render() {
@@ -723,10 +763,11 @@ const EditRecord = React.createClass({
         // console.log("EditRecord >>> render >>> this.props.community = ", ttt ) 
         // this.isForReview()
         console.log("\n\n workflow = ", this.props.community.getIn(["publication_workflow"]), 
+                    ", this.props.isDraft = ", this.props.isDraft,
                     ", this.state.record: publication_state = ", this.state.record.get('publication_state') ,
                     ", this.state.readOnly = ", this.state.readOnly,
                      "\n\n")
-        return (
+        return ( /// onSubmit={this.updateRecord ?????????????
             <div className="edit-record">
                 <Versions isDraft={this.props.isDraft}
                           recordID={this.props.record.get('id')}
