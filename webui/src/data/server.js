@@ -993,6 +993,7 @@ export const browser = {
     },
 
     gotoEditRecord(recordId) {
+        console.log("serverCache > gotoEditRecord > recordId = ", recordId)
         browserHistory.push(`/records/${recordId}/edit`);
     },
 }

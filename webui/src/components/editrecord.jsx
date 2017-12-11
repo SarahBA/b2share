@@ -701,33 +701,22 @@ const EditRecord = React.createClass({
     renderSubmitDraftForm() {
         if(this.props.community){
             if(this.props.community.getIn(["publication_workflow"]) == 'review_and_publish'){
-                if(this.state.record == 'submit' && this.state.readOnly){ // shayad faghat readonly kafi bood?!!
-                    return (
-                        <div className="col-sm-offset-3 col-sm-9">
-                            <p> ??? some description ??? </p>
-                            <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.editSubmittedRecord}>Edit</button>
-                        </div>
-                    );                    
-                } else {
-                    const klass = this.state.waitingForServer ? 'disabled' :
-                                  this.isForPublication() ? 'btn-primary btn-danger' :
-                                  this.state.dirty ? 'btn-primary' : 'disabled';
-                    const text = this.state.waitingForServer ? "Updating record, please wait..." :
-                                  this.isForPublication() ? 'Save and submit for review' :
-                                  this.state.dirty ? 'Save Draft' : 'The draft is up to date';
-                    // console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
-                    return (
-                        <div className="col-sm-offset-3 col-sm-9">
-                            <label style={{fontSize:18, fontWeight:'normal'}}>
-                                <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/>
-                                {" "}Submit draft for review by your community administrator
-                            </label>
-                            <p> ??? some description ??? </p>
-                            <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateSates}>{text}</button>
-                        </div>
-                    );
-                }
-
+                const klass = this.state.waitingForServer ? 'disabled' :
+                              this.isForPublication() ? 'btn-primary btn-danger' :
+                              this.state.dirty ? 'btn-primary' : 'disabled';
+                const text = this.state.waitingForServer ? "Updating record, please wait..." :
+                              this.isForPublication() ? 'Save and submit for review' :
+                              this.state.dirty ? 'Save Draft' : 'The draft is up to date';
+                // console.log("renderSubmitDraftForm >>> this.isForPublication() = ", this.isForPublication(), " , workflow = ", this.props.community.getIn(["publication_workflow"]), "  , dirty = ", this.state.dirty )
+                return (
+                    <div className="col-sm-offset-3 col-sm-9">
+                        <label style={{fontSize:18, fontWeight:'normal'}}>
+                            <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/>
+                            {" "}Submit draft for review by your community administrator
+                        </label>
+                        <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateSates}>{text}</button>
+                    </div>
+                );
             } else {
                 const klass = this.state.waitingForServer ? 'disabled' :
                               this.isForPublication() ? 'btn-primary btn-danger' :
@@ -802,14 +791,24 @@ const EditRecord = React.createClass({
                     </fieldset>
                     </div>
                 </div>
+                {this.state.record == 'submit' && this.state.readOnly ? console.log("AAAAAAAAAAAA") : console.log("oooOoOoOoOo") }
                 <div className="row">
-                    <div className="form-group submit row" style={{margin:'2em 0', paddingTop:'2em', borderTop:'1px solid #eee'}}>
-                        {pairs(this.state.errors).map( ([id, msg]) =>
-                            <div className="col-sm-offset-3 col-sm-9 alert alert-warning" key={id}>{msg} </div>) }
-                        { this.props.isDraft ? this.renderSubmitDraftForm() : this.renderUpdateRecordForm() }
-                    </div>
+                    {this.state.record == 'submit' && this.state.readOnly ? 
+                        <div className="form-group submit row" style={{margin:'2em 0', paddingTop:'2em', borderTop:'1px solid #eee'}}>
+                            <div className="col-sm-offset-3 col-sm-9">
+                                <p> *** some description ?*** </p>
+                                <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.editSubmittedRecord}>Edit</button>
+                            </div>
+                        </div>
+                    :
+                        <div className="form-group submit row" style={{margin:'2em 0', paddingTop:'2em', borderTop:'1px solid #eee'}}>
+                            {pairs(this.state.errors).map( ([id, msg]) =>
+                                <div className="col-sm-offset-3 col-sm-9 alert alert-warning" key={id}>{msg} </div>) }
+                            { this.props.isDraft ? this.renderSubmitDraftForm() : this.renderUpdateRecordForm() }
+                        </div>
+                    }
                 </div>
             </div>
-        );
+        ); //<!-- // shayad faghat readonly kafi bood?!! -->
     }
 });
