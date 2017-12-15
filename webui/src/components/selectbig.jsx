@@ -64,7 +64,7 @@ export const SelectBig = React.createClass({
     render() {
         const busy = !this.props.data;
         const data = this.props.data || [];
-        console.log("???????????/ this.props.readOnly = ", this.props.readOnly)
+        // console.log("???????????/ this.props.readOnly = ", this.props.readOnly)
         return (
             <DropdownList
                 data={data}

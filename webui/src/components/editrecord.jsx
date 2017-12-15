@@ -130,7 +130,8 @@ const EditRecord = React.createClass({
             <EditFiles files={files ? files.toJS() : []}
                 record={this.props.record}
                 setState={setState}
-                setModal={modal => this.setState({modal})} />
+                setModal={modal => this.setState({modal})}
+                readOnly={this.state.readOnly} />
         );
     },
 
