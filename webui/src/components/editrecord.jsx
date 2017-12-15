@@ -791,13 +791,13 @@ const EditRecord = React.createClass({
                     </fieldset>
                     </div>
                 </div>
-                {this.state.record == 'submit' && this.state.readOnly ? console.log("AAAAAAAAAAAA") : console.log("oooOoOoOoOo") }
+                {this.state.record.get('publication_state') == 'submitted' && this.state.readOnly ? console.log(this.state.record , " , RAEDooOoooonly") : console.log(this.state.record ," , Beeeeeep") }
                 <div className="row">
-                    {this.state.record == 'submit' && this.state.readOnly ? 
+                    {this.state.record.get('publication_state') == 'submitted' && this.state.readOnly ?
                         <div className="form-group submit row" style={{margin:'2em 0', paddingTop:'2em', borderTop:'1px solid #eee'}}>
                             <div className="col-sm-offset-3 col-sm-9">
-                                <p> *** some description ?*** </p>
-                                <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.editSubmittedRecord}>Edit</button>
+                                <p> *** some description *** </p>
+                                <button type="submit" className={"btn btn-default btn-block btn-primary btn-danger "} onClick={this.editSubmittedRecord}>Edit</button>
                             </div>
                         </div>
                     :
