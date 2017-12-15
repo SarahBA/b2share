@@ -17,7 +17,8 @@ export const SelectBig = React.createClass({
         const len = x => (x && x.length !== undefined) ? x.length : 0;
         // fast check, not exact, but should work for our use case
         return nextProps.value !== this.props.value
-            || len(nextProps.data) !== len(this.props.data);
+            || len(nextProps.data) !== len(this.props.data)
+            || nextProps.readOnly;
     },
 
     getInitialState: function(){

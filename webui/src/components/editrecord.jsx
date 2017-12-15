@@ -714,6 +714,7 @@ const EditRecord = React.createClass({
                             <input type="checkbox" value={this.isForPublication} onChange={this.setPublishedState}/>
                             {" "}Submit draft for review by your community administrator
                         </label>
+                        <p> ??? some description ??? </p>
                         <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateSates}>{text}</button>
                     </div>
                 );
@@ -791,7 +792,6 @@ const EditRecord = React.createClass({
                     </fieldset>
                     </div>
                 </div>
-                {this.state.record.get('publication_state') == 'submitted' && this.state.readOnly ? console.log(this.state.record , " , RAEDooOoooonly") : console.log(this.state.record ," , Beeeeeep") }
                 <div className="row">
                     {this.state.record.get('publication_state') == 'submitted' && this.state.readOnly ?
                         <div className="form-group submit row" style={{margin:'2em 0', paddingTop:'2em', borderTop:'1px solid #eee'}}>
@@ -810,5 +810,6 @@ const EditRecord = React.createClass({
                 </div>
             </div>
         ); //<!-- // shayad faghat readonly kafi bood?!! -->
+        // {this.state.record.get('publication_state') == 'submitted' && this.state.readOnly ? console.log(this.state.record , " , RAEDooOoooonly") : console.log(this.state.record ," , Beeeeeep") }
     }
 });

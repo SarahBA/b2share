@@ -135,7 +135,7 @@ export const UserProfile = React.createClass({
                     </div>
                     <div className="row">
                         <h3>Submitted Records for Review </h3>
-                        <p><Link to={"/records?drafts=1&q=publication_state%3Asubmitted"}> List of submitted records waiting for your review </Link></p>
+                        <p><Link to={"/records?drafts=1&q=publication_state%3Asubmitted"}> List of submitted records waiting for review by your community administrator </Link></p>
                     </div>
                     <div className="row">
                         <h3>Own records</h3>
