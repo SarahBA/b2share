@@ -588,7 +588,6 @@ const EditRecord = React.createClass({
     componentDidUpdate(prevProps, prevState) {
         const original = this.props.record.get('metadata').toJS();
         let updated = this.state.record.toJS();
-
         // when the checkbox is ticked and the record is going to be "submitted" for review by admin 
         if (prevState.record.getIn(['publication_state']) !== this.state.record.getIn(['publication_state']) && !this.state.revoking){// && this.state.record.getIn(['publication_state'])=='submitted' ){ //shayad dovomin shart lazem nabashe???!!
         // if (this.state.record.getIn(['publication_state']) == 'submitted' && !this.state.revoking){// && this.state.record.getIn(['publication_state'])=='submitted' ){ //shayad dovomin shart lazem nabashe???!!
@@ -614,6 +613,7 @@ const EditRecord = React.createClass({
 
     updateSates(event) {
         event.preventDefault();
+        console.log("........ updateSates")
         const errors = this.findValidationErrors();
         if (this.state.fileState !== 'done' || pairs(errors).length > 0) {
             this.setState({errors});
@@ -663,7 +663,7 @@ const EditRecord = React.createClass({
                 console.log("switch case edit")
                 afterPatch = (record) => {
                     // this.setState({dirty:false, waitingForServer: false, readOnly: false}); // dirty va readOnly ro ghablan avaz kardam, az inja pak konam???
-                    this.setState({waitingForServer: false});
+                    this.setState({waitingForServer: false, revoking: false});
                     console.log("............... Five")
                     notifications.clearAll();
                     // notifications.warning(`This record is submitted and waiting for review by your community administrator`);
@@ -801,6 +801,7 @@ const EditRecord = React.createClass({
                     ", this.props.isDraft = ", this.props.isDraft,
                     ", this.state.record.get.publication_state = ", this.state.record.get('publication_state') ,
                     ", this.state.readOnly = ", this.state.readOnly,
+                    ", this.state.tmp  = ", this.state.tmp,
                     ", this.props.record.get.publication_state  = ", this.props.record.get('metadata').get('publication_state'),
                      "\n\n")
         return ( /// onSubmit={this.updateRecord ?????????????
