@@ -14,11 +14,13 @@ export const SelectBig = React.createClass({
     maxResults: 50,
 
     shouldComponentUpdate: function(nextProps, nextState) {
+        // console.log("SelectBig >>>> nextProps.readOnly = ", nextProps.readOnly)
+        // console.log("SelectBig >>>> this.props.readOnly = ", this.props.readOnly)
         const len = x => (x && x.length !== undefined) ? x.length : 0;
         // fast check, not exact, but should work for our use case
         return nextProps.value !== this.props.value
             || len(nextProps.data) !== len(this.props.data)
-            || nextProps.readOnly;
+            || nextProps.readOnly !== this.props.readOnly;
     },
 
     getInitialState: function(){
@@ -64,7 +66,7 @@ export const SelectBig = React.createClass({
     render() {
         const busy = !this.props.data;
         const data = this.props.data || [];
-        // console.log("???????????/ this.props.readOnly = ", this.props.readOnly)
+        // console.log("SelectBig >>>> this.props.readOnly = ", this.props.readOnly)
         return (
             <DropdownList
                 data={data}
