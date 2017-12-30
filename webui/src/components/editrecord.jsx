@@ -493,9 +493,9 @@ const EditRecord = React.createClass({
         }
 
         if(this.state.revoking){ // when a submitted record is supposed to be revoked (Edit button was pressed)
-            console.log("?????????????????????? this.state.tmp = ", this.state.tmp,
-                         " , this.state.readOnly = ", this.state.readOnly, 
-                         " , this.state.record.get('publication_state') = ", this.state.record.get('publication_state'))
+            // console.log("?????????????????????? this.state.tmp = ", this.state.tmp,
+            //              " , this.state.readOnly = ", this.state.readOnly,
+            //              " , this.state.record.get('publication_state') = ", this.state.record.get('publication_state'))
             this.forceUpdate();
             // this.props.refreshCache();
             // this.setState({tmp:null})
@@ -663,6 +663,7 @@ const EditRecord = React.createClass({
                 console.log("switch case edit")
                 afterPatch = (record) => {
                     // this.setState({dirty:false, waitingForServer: false, readOnly: false}); // dirty va readOnly ro ghablan avaz kardam, az inja pak konam???
+                    this.setState({waitingForServer: false});
                     console.log("............... Five")
                     notifications.clearAll();
                     // notifications.warning(`This record is submitted and waiting for review by your community administrator`);
