@@ -263,10 +263,10 @@ export const EditFiles = React.createClass({
         }
     },
 
-    shouldComponentUpdate: function(nextProps, nextState) {
-        // console.log("EditFiles >> shouldComponentUpdate , nextProps.readOnly =", nextProps.readOnly)
-        // console.log("EditFiles >> shouldComponentUpdate , this.props.readOnly =", this.props.readOnly)
-        return nextProps.readOnly !== this.props.readOnly;
+    componentWillReceiveProps(props) {
+        // console.log("componentWillReceiveProps :::: props.readOnly =", props.readOnly)
+        // console.log("componentWillReceiveProps :::: this.props.readOnly =", this.props.readOnly)
+        return props.readOnly !== this.props.readOnly;
     },
 
     handleAdd: function(fs, location) {
