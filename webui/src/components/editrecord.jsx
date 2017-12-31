@@ -853,7 +853,7 @@ const EditRecord = React.createClass({
                     </div>
                     <div className="col-xs-12">
                     <fieldset disabled={this.state.readOnly}>
-                        <form className="form-horizontal" onSubmit={this.updateRecord}>
+                        <form className="form-horizontal" onSubmit={this.updateSates}>
                             { this.renderFieldBlock(null, rootSchema) }
 
                             { !blockSchemas ? false :
