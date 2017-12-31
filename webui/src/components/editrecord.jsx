@@ -598,7 +598,7 @@ const EditRecord = React.createClass({
                 this.setState({dirty:false});
                 return;
             }
-            this.apllyPatch(patch, 'submitted');
+            this.applyPatch(patch, 'submitted');
         }
 
         // when the submitted record is going to be revoked (after editSubmittedRecord() is called and revoking state is chahged)
@@ -606,7 +606,7 @@ const EditRecord = React.createClass({
             console.log("+++++++++++++++++")
             updated['publication_state'] = 'draft'
             const patch = compare(original, updated);
-            this.apllyPatch(patch, 'edit');
+            this.applyPatch(patch, 'edit');
             // return;
         }
     },
@@ -629,7 +629,17 @@ const EditRecord = React.createClass({
                 this.setState({dirty:false});
                 return;
             }
-            this.apllyPatch(patch, 'save_draft');
+            this.applyPatch(patch, 'save_draft');
+        } else if(this.state.tmp == 'published' && this.state.record.get('publication_state') == 'published'){
+            //when there is a published record like bbmri that is going to be edited!
+            const original = this.props.record.get('metadata').toJS();
+            const updated = this.state.record.toJS();
+            const patch = compare(original, updated);
+            if (!patch || !patch.length) {
+                this.setState({dirty:false});
+                return;
+            }
+            this.applyPatch(patch, 'edit_metadata');
         } else {
             //when record is going to be submitted for review, through componentDidUpdate
             const record = this.state.record.set('publication_state', this.state.tmp);
@@ -638,12 +648,12 @@ const EditRecord = React.createClass({
     },
 
     // updateRecord(patch) {
-    apllyPatch(patch, caseValue) {
-        console.log(".... apllyPatch .... caseValue = ", caseValue)
+    applyPatch(patch, caseValue) {
+        console.log(".... applyPatch .... caseValue = ", caseValue)
         let afterPatch;
         switch (caseValue) {
             case 'submitted':
-                console.log("switch case submitted")
+                console.log("switch > case > submitted")
                 afterPatch = (record) => {
                     // when EUDAT record is sent for review
                     if (this.props.community.getIn(["publication_workflow"]) == 'review_and_publish'){ 
@@ -660,7 +670,7 @@ const EditRecord = React.createClass({
                 break;
 
             case 'edit':
-                console.log("switch case edit")
+                console.log("switch > case > edit")
                 afterPatch = (record) => {
                     // this.setState({dirty:false, waitingForServer: false, readOnly: false}); // dirty va readOnly ro ghablan avaz kardam, az inja pak konam???
                     this.setState({waitingForServer: false, revoking: false});
@@ -672,7 +682,7 @@ const EditRecord = React.createClass({
                 break;
 
             case 'save_draft':
-                console.log("switch case save_draft")
+                console.log("switch > case > save_draft")
                 afterPatch = (record) => {
                     if (this.props.isDraft && !this.isForPublication()) { // shayad in if ro dige nakhaym!!???
                         console.log("................ first ")// , this.isForPublication() = ", this.isForPublication())
@@ -683,6 +693,19 @@ const EditRecord = React.createClass({
                         this.setState({dirty:false, waitingForServer: false});
                         notifications.clearAll();
                     }
+                }
+                break;
+
+            case 'edit_metadata':
+                console.log("switch > case > edit_metadata")
+                afterPatch = (record) => {
+                    console.log("................ six ")// , this.isForPublication() = ", this.isForPublication())
+                    // TODO(edima): when a draft is publised, clean the state of
+                    // records in versioned chain, to trigger a refetch of
+                    // versioning data
+                    this.setState({dirty:false, waitingForServer: false});
+                    notifications.clearAll();
+                    browser.gotoRecord(record.id);
                 }
                 break;
         }
@@ -735,10 +758,11 @@ const EditRecord = React.createClass({
                       this.state.dirty ? 'btn-primary' : 'disabled';
         const text = this.state.waitingForServer ? "Updating record, please wait...":
                      this.state.dirty ? "Update record" : "The record is up to date";
+        console.log("....renderUpdateRecordForm......")
         return (
             <div className="col-sm-offset-3 col-sm-9">
                 <p>This record is already published. Any changes you make will be directly visible to other people.</p>
-                <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button> 
+                <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateSates}>{text}</button> 
             </div>
         );
     },
